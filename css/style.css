@@ -213,3 +213,22 @@ body {
 
   .fc .fc-toolbar-title { font-size: 13px; }
 }
+
+/* ─── Button hover / active text fix ────────────────────────────────────── */
+.fc .fc-button:hover {
+  color: var(--color-bg) !important;
+}
+
+.fc .fc-button:active,
+.fc .fc-button.fc-button-active {
+  color: var(--color-bg) !important;
+  background-color: var(--color-text) !important;
+}
+
+/* Also covers the currently-selected view button */
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active {
+  color: var(--color-bg) !important;
+  background-color: var(--color-text) !important;
+  border-color: var(--color-text) !important;
+}
