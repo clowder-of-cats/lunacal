@@ -1,30 +1,21 @@
 // ─── URLs ────────────────────────────────────────────────────────────────────
-// This is the webcal:// link shown to users for subscribing in their own app
 const WEBCAL_URL = 'webcal://p107-caldav.icloud.com/published/2/MjAwMjg2NzQzMDUyMDAyOIUdIi1NYG67iQ-qZPpE2RAOVKE6-QXI5ymE7vdPjQg9d9Fz-otfDBo7vQgOfGvLZjbhu11ueqEont0UGFHArLQ';
-
-// ✏️ CHANGE 1: FullCalendar now loads from the local file synced by GitHub Actions.
-// No CORS issues because it's on the same domain as the page.
 const LOCAL_ICS_URL = 'data/events.ics';
 // ─────────────────────────────────────────────────────────────────────────────
 
 
-// Global functions for buttons
 window.copyToClipboard = function() {
-  // ✏️ CHANGE 2: Copy the webcal:// URL (what users paste into Apple Calendar / Google Calendar)
   navigator.clipboard.writeText(WEBCAL_URL).then(() => {
     const btn = event.target;
     const originalText = btn.textContent;
     btn.textContent = 'Copied!';
-    setTimeout(() => {
-      btn.textContent = originalText;
-    }, 2000);
+    setTimeout(() => { btn.textContent = originalText; }, 2000);
   }).catch(err => {
     alert('Failed to copy. Please try again.');
   });
 };
 
 window.downloadICS = function() {
-  // ✏️ CHANGE 3: Download the locally-synced ICS file instead of hitting Apple directly
   fetch(LOCAL_ICS_URL)
     .then(response => response.text())
     .then(icsContent => {
@@ -45,7 +36,6 @@ window.downloadICS = function() {
 };
 
 
-// Simple ICS parser
 function parseICS(icsText) {
   const events = [];
   const lines = icsText.split('\n');
@@ -80,20 +70,17 @@ function parseDate(dateString) {
   
   let dateStr = match[1].trim();
   
-  // ✏️ BUG FIX: All-day events come as YYYYMMDD (8 chars).
-  // Your original code returned this raw, but FullCalendar needs YYYY-MM-DD.
   if (dateStr.length === 8) {
     return `${dateStr.substring(0, 4)}-${dateStr.substring(4, 6)}-${dateStr.substring(6, 8)}`;
   }
   
   if (dateStr.length >= 15) {
-    const year = dateStr.substring(0, 4);
-    const month = dateStr.substring(4, 6);
-    const day = dateStr.substring(6, 8);
-    const hour = dateStr.substring(9, 11);
+    const year   = dateStr.substring(0, 4);
+    const month  = dateStr.substring(4, 6);
+    const day    = dateStr.substring(6, 8);
+    const hour   = dateStr.substring(9, 11);
     const minute = dateStr.substring(11, 13);
     const second = dateStr.substring(13, 15);
-    
     return `${year}-${month}-${day}T${hour}:${minute}:${second}`;
   }
   
@@ -101,7 +88,6 @@ function parseDate(dateString) {
 }
 
 
-// Initialize calendar when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
   console.log('Initializing calendar...');
   
@@ -114,12 +100,32 @@ document.addEventListener('DOMContentLoaded', function() {
   var calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: 'dayGridMonth',
     headerToolbar: {
-      left: 'prev,next today',
+      left:   'prev,next today',
       center: 'title',
-      right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
+      right:  'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
     },
+
+    // ✏️ NEW: colour events by production stage keyword
+    eventDidMount: function(info) {
+      const title = info.event.title.toLowerCase();
+      const el    = info.el;
+
+      if (title.includes('open') || title.includes('drop')) {
+        el.style.backgroundColor = '#C4956A'; // warm amber — drop/open
+        el.style.borderColor     = '#C4956A';
+      } else if (title.includes('roasting')) {
+        el.style.backgroundColor = '#B5714A'; // terra cotta — roasting
+        el.style.borderColor     = '#B5714A';
+      } else if (title.includes('ship') || title.includes('dispatch')) {
+        el.style.backgroundColor = '#6B8F71'; // sage green — dispatch
+        el.style.borderColor     = '#6B8F71';
+      } else if (title.includes('paused') || title.includes('closed')) {
+        el.style.backgroundColor = '#8A8E8E'; // cool grey — paused
+        el.style.borderColor     = '#8A8E8E';
+      }
+    },
+
     events: function(info, successCallback, failureCallback) {
-      // ✏️ CHANGE 4: Fetch from local file, not Apple's server
       console.log('Fetching events from:', LOCAL_ICS_URL);
       fetch(LOCAL_ICS_URL)
         .then(response => {
@@ -140,10 +146,10 @@ document.addEventListener('DOMContentLoaded', function() {
           failureCallback(error);
         });
     },
-    editable: false,
-    selectable: false,
-    eventDisplay: 'block',
-    height: 'auto',
+    editable:      false,
+    selectable:    false,
+    eventDisplay:  'block',
+    height:        'auto',
     contentHeight: 'auto'
   });
   
