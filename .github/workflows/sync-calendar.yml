@@ -1,0 +1,28 @@
+name: Sync Apple Calendar
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'   # runs every 6 hours
+  workflow_dispatch:          # also lets you trigger it manually
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download ICS from Apple Calendar
+        run: |
+          curl -L "https://p12-caldav.icloud.com/published/2/...your-url..." \
+            -o data/events.ics
+
+      - name: Commit updated ICS
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions@github.com"
+          git add data/events.ics
+          git diff --cached --quiet || git commit -m "Sync calendar"
+          git push
