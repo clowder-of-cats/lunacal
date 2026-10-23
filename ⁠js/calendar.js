@@ -1,41 +1,40 @@
 // For FullCalendar display - use HTTPS version of your Apple Calendar URL
 const APPLE_ICAL_URL = 'https://p107-caldav.icloud.com/published/2/MjAwMjg2NzQzMDUyMDAyOIUdIi1NYG67iQ-qZPpE2RAOVKE6-QXI5ymE7vdPjQg9d9Fz-otfDBo7vQgOfGvLZjbhu11ueqEont0UGFHArLQ';
 
-document.addEventListener('DOMContentLoaded', function() {
-  // Initialize FullCalendar
-  var calendarEl = document.getElementById('calendar');
-  var calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridMonth',
-    headerToolbar: {
-      left: 'prev,next today',
-      center: 'title',
-      right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
-    },
-    events: function(info, successCallback, failureCallback) {
-      fetch(APPLE_ICAL_URL)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          return response.text();
-        })
-        .then(icsText => {
-          const events = parseICS(icsText);
-          successCallback(events);
-        })
-        .catch(error => {
-          console.error('Error fetching calendar:', error);
-          failureCallback(error);
-        });
-    },
-    editable: false,
-    selectable: false,
-    eventDisplay: 'block',
-    height: 'auto',
-    contentHeight: 'auto'
+// Global functions for buttons
+window.copyToClipboard = function() {
+  const url = document.getElementById('ical-url').textContent;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = event.target;
+    const originalText = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => {
+      btn.textContent = originalText;
+    }, 2000);
+  }).catch(err => {
+    alert('Failed to copy. Please try again.');
   });
-  calendar.render();
-});
+};
+
+window.downloadICS = function() {
+  fetch(APPLE_ICAL_URL)
+    .then(response => response.text())
+    .then(icsContent => {
+      const blob = new Blob([icsContent], { type: 'text/calendar' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'calendar.ics';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    })
+    .catch(error => {
+      console.error('Error downloading calendar:', error);
+      alert('Failed to download calendar. Please try copying the URL instead.');
+    });
+};
 
 // Simple ICS parser
 function parseICS(icsText) {
@@ -67,20 +66,16 @@ function parseICS(icsText) {
 }
 
 function parseDate(dateString) {
-  // Handle formats like: DTSTART:20261025T100000Z or DTSTART;VALUE=DATE:20261028
   const match = dateString.match(/:(.*?)$/);
   if (!match) return null;
   
   let dateStr = match[1];
   
-  // If it's a date-only format (VALUE=DATE)
   if (dateStr.length === 8) {
-    return dateStr; // YYYYMMDD format
+    return dateStr;
   }
   
-  // If it's a datetime format
   if (dateStr.length >= 15) {
-    // Convert from YYYYMMDDTHHMMSSZ to YYYY-MM-DDTHH:MM:SS
     const year = dateStr.substring(0, 4);
     const month = dateStr.substring(4, 6);
     const day = dateStr.substring(6, 8);
@@ -94,42 +89,52 @@ function parseDate(dateString) {
   return dateStr;
 }
 
-function copyToClipboard() {
-  const url = document.getElementById('ical-url').textContent;
-  navigator.clipboard.writeText(url).then(() => {
-    const btn = event.target;
-    const originalText = btn.textContent;
-    btn.textContent = 'Copied!';
-    setTimeout(() => {
-      btn.textContent = originalText;
-    }, 2000);
-  }).catch(err => {
-    alert('Failed to copy. Please try again.');
+// Initialize calendar when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Initializing calendar...');
+  
+  var calendarEl = document.getElementById('calendar');
+  if (!calendarEl) {
+    console.error('Calendar element not found!');
+    return;
+  }
+  
+  var calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
+    },
+    events: function(info, successCallback, failureCallback) {
+      console.log('Fetching events from:', APPLE_ICAL_URL);
+      fetch(APPLE_ICAL_URL)
+        .then(response => {
+          console.log('Response status:', response.status);
+          if (!response.ok) {
+            throw new Error('Network response was not ok: ' + response.status);
+          }
+          return response.text();
+        })
+        .then(icsText => {
+          console.log('ICS text received, length:', icsText.length);
+          const events = parseICS(icsText);
+          console.log('Parsed events:', events);
+          successCallback(events);
+        })
+        .catch(error => {
+          console.error('Error fetching calendar:', error);
+          failureCallback(error);
+        });
+    },
+    editable: false,
+    selectable: false,
+    eventDisplay: 'block',
+    height: 'auto',
+    contentHeight: 'auto'
   });
-}
-
-function downloadICS() {
-  // Fetch the iCal file using HTTPS URL
-  fetch(APPLE_ICAL_URL)
-    .then(response => response.text())
-    .then(icsContent => {
-      // Create a blob from the ICS content
-      const blob = new Blob([icsContent], { type: 'text/calendar' });
-      
-      // Create a download link
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'calendar.ics';
-      
-      // Trigger the download
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    })
-    .catch(error => {
-      console.error('Error downloading calendar:', error);
-      alert('Failed to download calendar. Please try copying the URL instead.');
-    });
-}
+  
+  console.log('Calendar rendering...');
+  calendar.render();
+  console.log('Calendar rendered!');
+});
