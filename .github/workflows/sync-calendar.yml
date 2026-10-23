@@ -14,10 +14,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download ICS from Apple Calendar
-        run: |
-          curl -L "https://p12-caldav.icloud.com/published/2/...your-url..." \
-            -o data/events.ics
+- name: Download ICS from Apple Calendar
+  run: |
+    HTTP_CODE=$(curl -L \
+      -H "User-Agent: CalendarFetch/1.0" \
+      -o data/events.ics \
+      -w "%{http_code}" \
+      "https://p107-caldav.icloud.com/published/2/MjAwMjg2NzQzMDUyMDAyOIUdIi1NYG67iQ-qZPpE2RAOVKE6-QXI5ymE7vdPjQg9d9Fz-otfDBo7vQgOfGvLZjbhu11ueqEont0UGFHArLQ")
+    echo "HTTP status: $HTTP_CODE"
+    echo "File size: $(wc -c < data/events.ics) bytes"
+    echo "--- File contents ---"
+    cat data/events.ics
+    if [ ! -s data/events.ics ]; then
+      echo "ERROR: Downloaded file is empty — aborting commit"
+      exit 1
+    fi
+
 
       - name: Commit updated ICS
         run: |
