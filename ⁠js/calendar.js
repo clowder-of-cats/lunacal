@@ -1,23 +1,68 @@
+// For FullCalendar display - use HTTPS
+const APPLE_ICAL_URL = 'https://p107-caldav.icloud.com/published/2/MjAwMjg2NzQzMDUyMDAyOIUdIi1NYG67iQ-qZPpE2RAOVKE6-QXI5ymE7vdPjQg9d9Fz-otfDBo7vQgOfGvLZjbhu11ueqEont0UGFHArLQ';
+
+// For subscription links - use WEBCAL
+const APPLE_WEBCAL_URL = 'webcal://p107-caldav.icloud.com/published/2/MjAwMjg2NzQzMDUyMDAyOIUdIi1NYG67iQ-qZPpE2RAOVKE6-QXI5ymE7vdPjQg9d9Fz-otfDBo7vQgOfGvLZjbhu11ueqEont0UGFHArLQ';
+
 document.addEventListener('DOMContentLoaded', function() {
+  // Set the subscription URL in the subscription section
+  document.getElementById('ical-url').textContent = APPLE_WEBCAL_URL;
+
+  // Initialize FullCalendar with HTTPS URL
   var calendarEl = document.getElementById('calendar');
   var calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: 'dayGridMonth',
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
-      right: 'dayGridMonth,timeGridWeek,timeGridDay'
+      right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
     },
-    events: 'data/events.json',
+    events: APPLE_ICAL_URL,  // Use HTTPS version
     editable: false,
-    selectable: false
+    selectable: false,
+    eventDisplay: 'block',
+    height: 'auto',
+    contentHeight: 'auto'
   });
   calendar.render();
 });
 
 function copyToClipboard() {
-  const url = document.getElementById('feed-url').textContent;
+  const url = document.getElementById('ical-url').textContent;
   navigator.clipboard.writeText(url).then(() => {
-    alert('Calendar feed URL copied!');
+    const btn = event.target;
+    const originalText = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => {
+      btn.textContent = originalText;
+    }, 2000);
+  }).catch(err => {
+    alert('Failed to copy. Please try again.');
   });
 }
 
+function downloadICS() {
+  // Fetch the iCal file using HTTPS URL
+  fetch(APPLE_ICAL_URL)
+    .then(response => response.text())
+    .then(icsContent => {
+      // Create a blob from the ICS content
+      const blob = new Blob([icsContent], { type: 'text/calendar' });
+      
+      // Create a download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'calendar.ics';
+      
+      // Trigger the download
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    })
+    .catch(error => {
+      console.error('Error downloading calendar:', error);
+      alert('Failed to download calendar. Please try copying the URL instead.');
+    });
+}
