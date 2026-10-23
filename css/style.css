@@ -1,184 +1,215 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* ─── Brand Tokens ───────────────────────────────────────────────────────── */
+:root {
+  --color-bg:     #F3F3F1;
+  --color-text:   #323333;
+  --color-border: rgba(50, 51, 51, 0.15);
+  --color-muted:  rgba(50, 51, 51, 0.40);
+  --color-subtle: rgba(50, 51, 51, 0.06);
+  --font:         'PP Neue Montreal Mono', ui-monospace, Menlo,
+                  'Cascadia Code', Consolas, monospace;
+
+  /* FullCalendar CSS variable overrides */
+  --fc-page-bg-color:              var(--color-bg);
+  --fc-border-color:               var(--color-border);
+  --fc-neutral-bg-color:           var(--color-subtle);
+  --fc-today-bg-color:             rgba(50, 51, 51, 0.07);
+  --fc-event-bg-color:             var(--color-text);
+  --fc-event-border-color:         var(--color-text);
+  --fc-event-text-color:           var(--color-bg);
+  --fc-button-bg-color:            transparent;
+  --fc-button-border-color:        var(--color-text);
+  --fc-button-text-color:          var(--color-text);
+  --fc-button-hover-bg-color:      var(--color-text);
+  --fc-button-hover-border-color:  var(--color-text);
+  --fc-button-active-bg-color:     var(--color-text);
+  --fc-button-active-border-color: var(--color-text);
+  --fc-list-event-hover-bg-color:  var(--color-subtle);
 }
+
+/* ─── Reset ──────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
-  padding: 20px;
+  margin: 0;
+  padding: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font);
+  font-size: 13px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
 
+/* ─── Layout ─────────────────────────────────────────────────────────────── */
 .container {
-  max-width: 1000px;
+  max-width: 960px;
   margin: 0 auto;
-  background: white;
-  border-radius: 12px;
-  padding: 40px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  padding: 48px 24px;
 }
 
-h1 {
-  margin-bottom: 30px;
-  color: #333;
-  font-size: 2.5em;
-  text-align: center;
-}
-
-h2 {
-  color: #555;
-  font-size: 1.5em;
-  margin-bottom: 15px;
-}
-
-h3 {
-  color: #667eea;
-  font-size: 1.1em;
-  margin-bottom: 10px;
-}
-
-.subscription-section {
-  background: #f8f9fa;
-  padding: 30px;
-  border-radius: 8px;
+/* ─── Subscribe strip ────────────────────────────────────────────────────── */
+.subscribe-section {
   margin-bottom: 40px;
-  border-left: 5px solid #667eea;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--color-border);
 }
 
-.subscription-section > p {
-  color: #666;
-  margin-bottom: 20px;
-  font-size: 1.05em;
+.subscribe-section h2,
+.subscribe-section h3 {
+  margin: 0 0 6px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted);
 }
 
-.subscription-options {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 30px;
-  margin-top: 20px;
+.subscribe-section p {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--color-text);
 }
 
-.option {
-  background: white;
-  padding: 20px;
-  border-radius: 6px;
-  border: 1px solid #e0e0e0;
-}
-
-.option p {
-  color: #666;
-  margin-bottom: 15px;
-  font-size: 0.95em;
-  line-height: 1.5;
-}
-
-.url-box {
-  background: #f0f0f0;
-  padding: 15px;
-  border-radius: 6px;
+.subscribe-options {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ─── Buttons ────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  background: transparent;
+  border: 1px solid var(--color-text);
+  border-radius: 0;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.btn:hover {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+/* ─── Calendar wrapper ───────────────────────────────────────────────────── */
+#calendar {
+  font-family: var(--font);
+}
+
+/* Toolbar */
+.fc .fc-toolbar.fc-header-toolbar {
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 8px;
   align-items: center;
 }
 
-.url-box code {
-  flex: 1;
-  word-break: break-all;
-  font-size: 0.85em;
-  color: #333;
-  font-family: 'Courier New', monospace;
+.fc .fc-toolbar-title {
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: var(--color-text);
 }
 
-.copy-btn,
-.download-btn {
-  background: #667eea;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.95em;
-  font-weight: 600;
-  white-space: nowrap;
-  transition: background 0.3s ease;
+/* Nav + view buttons */
+.fc .fc-button {
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  border-radius: 0;
+  padding: 6px 11px;
+  box-shadow: none !important;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
-.copy-btn:hover,
-.download-btn:hover {
-  background: #764ba2;
+.fc .fc-button:focus { box-shadow: none; outline: none; }
+
+/* Column headers — Sun, Mon, Tue… */
+.fc .fc-col-header-cell-cushion {
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  text-decoration: none;
+  padding: 10px 4px;
 }
 
-.copy-btn:active,
-.download-btn:active {
-  transform: scale(0.98);
+/* Day numbers */
+.fc .fc-daygrid-day-number {
+  font-family: var(--font);
+  font-size: 11px;
+  color: var(--color-text);
+  text-decoration: none;
+  padding: 6px 8px;
 }
 
-#calendar {
-  margin-top: 40px;
+.fc .fc-day-today .fc-daygrid-day-number {
+  font-weight: 700;
 }
 
-/* FullCalendar styling */
-.fc {
-  font-family: inherit;
+.fc .fc-day-other .fc-daygrid-day-number {
+  opacity: 0.25;
 }
 
-.fc .fc-button-primary {
-  background-color: #667eea;
-  border-color: #667eea;
-}
-
-.fc .fc-button-primary:hover {
-  background-color: #764ba2;
-  border-color: #764ba2;
-}
-
-.fc .fc-button-primary.fc-button-active {
-  background-color: #764ba2;
-  border-color: #764ba2;
-}
-
-.fc .fc-col-header-cell {
-  background-color: #f8f9fa;
-  color: #333;
-  font-weight: 600;
-}
-
-.fc .fc-daygrid-day.fc-day-today {
-  background-color: #f0f4ff;
-}
-
+/* Event pills — sharp corners, brand colours */
 .fc .fc-event {
-  background-color: #667eea;
-  border-color: #667eea;
+  border-radius: 0;
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  padding: 2px 6px;
+  border: none;
+  cursor: default;
 }
 
-.fc .fc-event:hover {
-  background-color: #764ba2;
-  border-color: #764ba2;
+.fc .fc-event:hover { opacity: 0.85; }
+
+/* List view */
+.fc .fc-list-day-text,
+.fc .fc-list-day-side-text {
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--color-text);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .container {
-    padding: 20px;
-  }
+.fc .fc-list-event-title a {
+  font-family: var(--font);
+  color: var(--color-text);
+  text-decoration: none;
+}
 
-  h1 {
-    font-size: 1.8em;
-  }
+.fc .fc-list-event-dot {
+  border-color: var(--color-text);
+}
 
-  .subscription-options {
-    grid-template-columns: 1fr;
-  }
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .container { padding: 24px 16px; }
 
-  .url-box {
+  .fc .fc-toolbar.fc-header-toolbar {
     flex-direction: column;
+    align-items: flex-start;
   }
 
-  .copy-btn,
-  .download-btn {
-    width: 100%;
-  }
+  .fc .fc-toolbar-title { font-size: 13px; }
 }
