@@ -1,10 +1,17 @@
-// For FullCalendar display - use HTTPS version of your Apple Calendar URL
-const APPLE_ICAL_URL = 'https://p107-caldav.icloud.com/published/2/MjAwMjg2NzQzMDUyMDAyOIUdIi1NYG67iQ-qZPpE2RAOVKE6-QXI5ymE7vdPjQg9d9Fz-otfDBo7vQgOfGvLZjbhu11ueqEont0UGFHArLQ';
+// ─── URLs ────────────────────────────────────────────────────────────────────
+// This is the webcal:// link shown to users for subscribing in their own app
+const WEBCAL_URL = 'webcal://p107-caldav.icloud.com/published/2/MjAwMjg2NzQzMDUyMDAyOIUdIi1NYG67iQ-qZPpE2RAOVKE6-QXI5ymE7vdPjQg9d9Fz-otfDBo7vQgOfGvLZjbhu11ueqEont0UGFHArLQ';
+
+// ✏️ CHANGE 1: FullCalendar now loads from the local file synced by GitHub Actions.
+// No CORS issues because it's on the same domain as the page.
+const LOCAL_ICS_URL = 'data/events.ics';
+// ─────────────────────────────────────────────────────────────────────────────
+
 
 // Global functions for buttons
 window.copyToClipboard = function() {
-  const url = document.getElementById('ical-url').textContent;
-  navigator.clipboard.writeText(url).then(() => {
+  // ✏️ CHANGE 2: Copy the webcal:// URL (what users paste into Apple Calendar / Google Calendar)
+  navigator.clipboard.writeText(WEBCAL_URL).then(() => {
     const btn = event.target;
     const originalText = btn.textContent;
     btn.textContent = 'Copied!';
@@ -17,7 +24,8 @@ window.copyToClipboard = function() {
 };
 
 window.downloadICS = function() {
-  fetch(APPLE_ICAL_URL)
+  // ✏️ CHANGE 3: Download the locally-synced ICS file instead of hitting Apple directly
+  fetch(LOCAL_ICS_URL)
     .then(response => response.text())
     .then(icsContent => {
       const blob = new Blob([icsContent], { type: 'text/calendar' });
@@ -35,6 +43,7 @@ window.downloadICS = function() {
       alert('Failed to download calendar. Please try copying the URL instead.');
     });
 };
+
 
 // Simple ICS parser
 function parseICS(icsText) {
@@ -69,10 +78,12 @@ function parseDate(dateString) {
   const match = dateString.match(/:(.*?)$/);
   if (!match) return null;
   
-  let dateStr = match[1];
+  let dateStr = match[1].trim();
   
+  // ✏️ BUG FIX: All-day events come as YYYYMMDD (8 chars).
+  // Your original code returned this raw, but FullCalendar needs YYYY-MM-DD.
   if (dateStr.length === 8) {
-    return dateStr;
+    return `${dateStr.substring(0, 4)}-${dateStr.substring(4, 6)}-${dateStr.substring(6, 8)}`;
   }
   
   if (dateStr.length >= 15) {
@@ -88,6 +99,7 @@ function parseDate(dateString) {
   
   return dateStr;
 }
+
 
 // Initialize calendar when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
@@ -107,8 +119,9 @@ document.addEventListener('DOMContentLoaded', function() {
       right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
     },
     events: function(info, successCallback, failureCallback) {
-      console.log('Fetching events from:', APPLE_ICAL_URL);
-      fetch(APPLE_ICAL_URL)
+      // ✏️ CHANGE 4: Fetch from local file, not Apple's server
+      console.log('Fetching events from:', LOCAL_ICS_URL);
+      fetch(LOCAL_ICS_URL)
         .then(response => {
           console.log('Response status:', response.status);
           if (!response.ok) {
