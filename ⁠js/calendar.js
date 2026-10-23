@@ -1,14 +1,8 @@
-// For FullCalendar display - use HTTPS
+// For FullCalendar display - use HTTPS version of your Apple Calendar URL
 const APPLE_ICAL_URL = 'https://p107-caldav.icloud.com/published/2/MjAwMjg2NzQzMDUyMDAyOIUdIi1NYG67iQ-qZPpE2RAOVKE6-QXI5ymE7vdPjQg9d9Fz-otfDBo7vQgOfGvLZjbhu11ueqEont0UGFHArLQ';
 
-// For subscription links - use WEBCAL
-const APPLE_WEBCAL_URL = 'webcal://p107-caldav.icloud.com/published/2/MjAwMjg2NzQzMDUyMDAyOIUdIi1NYG67iQ-qZPpE2RAOVKE6-QXI5ymE7vdPjQg9d9Fz-otfDBo7vQgOfGvLZjbhu11ueqEont0UGFHArLQ';
-
 document.addEventListener('DOMContentLoaded', function() {
-  // Set the subscription URL in the subscription section
-  document.getElementById('ical-url').textContent = APPLE_WEBCAL_URL;
-
-  // Initialize FullCalendar with HTTPS URL
+  // Initialize FullCalendar
   var calendarEl = document.getElementById('calendar');
   var calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: 'dayGridMonth',
@@ -17,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
       center: 'title',
       right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
     },
-    events: APPLE_ICAL_URL,  // Use HTTPS version
+    events: APPLE_ICAL_URL,
     editable: false,
     selectable: false,
     eventDisplay: 'block',
