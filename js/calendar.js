@@ -1,5 +1,5 @@
 // ─── URLs ────────────────────────────────────────────────────────────────────
-const WEBCAL_URL = 'webcal://p107-caldav.icloud.com/published/2/MjAwMjg2NzQzMDUyMDAyOIUdIi1NYG67iQ-qZPpE2RAOVKE6-QXI5ymE7vdPjQg9d9Fz-otfDBo7vQgOfGvLZjbhu11ueqEont0UGFHArLQ';
+const WEBCAL_URL = 'webcal://clowder-of-cats.github.io/lunacal/data/subscribe.ics';
 const LOCAL_ICS_URL = 'data/events.ics';
 // ─────────────────────────────────────────────────────────────────────────────
 
