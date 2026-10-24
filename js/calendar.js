@@ -40,10 +40,10 @@ function parseICS(icsText) {
   const events = [];
   const lines = icsText.split('\n');
   let currentEvent = {};
-  
+
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
-    
+
     if (line === 'BEGIN:VEVENT') {
       currentEvent = {};
     } else if (line === 'END:VEVENT') {
@@ -60,20 +60,20 @@ function parseICS(icsText) {
       currentEvent.description = line.substring(12);
     }
   }
-  
+
   return events;
 }
 
 function parseDate(dateString) {
   const match = dateString.match(/:(.*?)$/);
   if (!match) return null;
-  
+
   let dateStr = match[1].trim();
-  
+
   if (dateStr.length === 8) {
     return `${dateStr.substring(0, 4)}-${dateStr.substring(4, 6)}-${dateStr.substring(6, 8)}`;
   }
-  
+
   if (dateStr.length >= 15) {
     const year   = dateStr.substring(0, 4);
     const month  = dateStr.substring(4, 6);
@@ -83,29 +83,52 @@ function parseDate(dateString) {
     const second = dateStr.substring(13, 15);
     return `${year}-${month}-${day}T${hour}:${minute}:${second}`;
   }
-  
+
   return dateStr;
 }
 
 
+// ─── Calendar init ────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
   console.log('Initializing calendar...');
-  
+
   var calendarEl = document.getElementById('calendar');
   if (!calendarEl) {
     console.error('Calendar element not found!');
     return;
   }
-  
+
+  // Detect mobile on load
+  const isMobile = window.innerWidth < 640;
+
+  const mobileToolbar = {
+    left:   'prev,next',
+    center: 'title',
+    right:  'today,listMonth,dayGridMonth'
+  };
+
+  const desktopToolbar = {
+    left:   'prev,next today',
+    center: 'title',
+    right:  'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
+  };
+
   var calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridMonth',
-    headerToolbar: {
-      left:   'prev,next today',
-      center: 'title',
-      right:  'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
+
+    // List view on mobile — full event names, no truncation
+    initialView:  isMobile ? 'listMonth' : 'dayGridMonth',
+    headerToolbar: isMobile ? mobileToolbar : desktopToolbar,
+
+    // Swap toolbar and view when screen is resized
+    windowResize: function() {
+      const nowMobile = window.innerWidth < 640;
+      calendar.setOption('headerToolbar', nowMobile ? mobileToolbar : desktopToolbar);
+      if (nowMobile && ['timeGridWeek', 'timeGridDay'].includes(calendar.view.type)) {
+        calendar.changeView('listMonth');
+      }
     },
 
-    // ✏️ NEW: colour events by production stage keyword
+    // Colour events by production stage keyword
     eventDidMount: function(info) {
       const title = info.event.title.toLowerCase();
       const el    = info.el;
@@ -146,13 +169,14 @@ document.addEventListener('DOMContentLoaded', function() {
           failureCallback(error);
         });
     },
+
     editable:      false,
     selectable:    false,
     eventDisplay:  'block',
     height:        'auto',
     contentHeight: 'auto'
   });
-  
+
   console.log('Calendar rendering...');
   calendar.render();
   console.log('Calendar rendered!');
