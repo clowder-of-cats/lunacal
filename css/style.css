@@ -232,3 +232,69 @@ body {
   background-color: var(--color-text) !important;
   border-color: var(--color-text) !important;
 }
+/* ─── Compact subscribe strip ─────────────────────────────────────────────── */
+.subscribe-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border);
+  flex-wrap: wrap;
+}
+
+.subscribe-label {
+  font-size: 11px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.subscribe-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ─── Mobile overrides ────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .container {
+    padding: 16px 12px;
+  }
+
+  /* Strip stacks vertically on mobile */
+  .subscribe-strip {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  /* Tighten up the toolbar */
+  .fc .fc-toolbar.fc-header-toolbar {
+    gap: 6px;
+  }
+
+  .fc .fc-toolbar-title {
+    font-size: 13px;
+  }
+
+  .fc .fc-button {
+    font-size: 9px;
+    padding: 5px 8px;
+    letter-spacing: 0.07em;
+  }
+
+  /* Reduce day number size */
+  .fc .fc-daygrid-day-number {
+    font-size: 10px;
+    padding: 4px 5px;
+  }
+
+  /* Tighten event pills */
+  .fc .fc-event {
+    font-size: 10px;
+    padding: 1px 4px;
+  }
+}
+
