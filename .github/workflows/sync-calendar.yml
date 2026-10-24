@@ -27,10 +27,40 @@ jobs:
             exit 1
           fi
 
+      - name: Generate filtered subscribe ICS
+        run: |
+          python3 - <<'EOF'
+          import re
+
+          with open('data/events.ics', 'r', encoding='utf-8') as f:
+              content = f.read()
+
+          # Grab everything before the first event (VCALENDAR headers)
+          header = content[:content.find('BEGIN:VEVENT')]
+
+          # Extract all VEVENT blocks
+          vevents = re.findall(r'BEGIN:VEVENT.*?END:VEVENT', content, re.DOTALL)
+
+          # Keep only open/drop events
+          keywords = ['open', 'drop']
+          filtered = [
+              e for e in vevents
+              if (m := re.search(r'SUMMARY:(.*)', e))
+              and any(kw in m.group(1).lower() for kw in keywords)
+          ]
+
+          output = header + '\n'.join(filtered) + '\nEND:VCALENDAR'
+
+          with open('data/subscribe.ics', 'w', encoding='utf-8') as f:
+              f.write(output)
+
+          print(f"Filtered {len(filtered)} of {len(vevents)} events into subscribe.ics")
+          EOF
+
       - name: Commit updated ICS
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions@github.com"
-          git add data/events.ics
+          git add data/events.ics data/subscribe.ics
           git diff --cached --quiet || git commit -m "Sync calendar"
           git push
