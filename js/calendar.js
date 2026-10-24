@@ -133,19 +133,20 @@ document.addEventListener('DOMContentLoaded', function() {
       const title = info.event.title.toLowerCase();
       const el    = info.el;
 
-      if (title.includes('open') || title.includes('drop')) {
-        el.style.backgroundColor = '#C4956A'; // warm amber — drop/open
-        el.style.borderColor     = '#C4956A';
-      } else if (title.includes('roasting')) {
-        el.style.backgroundColor = '#B5714A'; // terra cotta — roasting
-        el.style.borderColor     = '#B5714A';
-      } else if (title.includes('ship') || title.includes('dispatch')) {
-        el.style.backgroundColor = '#6B8F71'; // sage green — dispatch
-        el.style.borderColor     = '#6B8F71';
-      } else if (title.includes('paused') || title.includes('closed')) {
-        el.style.backgroundColor = '#8A8E8E'; // cool grey — paused
-        el.style.borderColor     = '#8A8E8E';
-      }
+if (title.includes('open') || title.includes('drop')) {
+  el.style.backgroundColor = '#6B8F71'; // sage green — drop/open
+  el.style.borderColor     = '#6B8F71';
+} else if (title.includes('roasting')) {
+  el.style.backgroundColor = '#B5714A'; // terra cotta — roasting
+  el.style.borderColor     = '#B5714A';
+} else if (title.includes('ship') || title.includes('dispatch')) {
+  el.style.backgroundColor = '#C4956A'; // warm amber — dispatch
+  el.style.borderColor     = '#C4956A';
+} else if (title.includes('paused') || title.includes('closed')) {
+  el.style.backgroundColor = '#8A8E8E'; // cool grey — paused
+  el.style.borderColor     = '#8A8E8E';
+}
+
     },
 
     events: function(info, successCallback, failureCallback) {
